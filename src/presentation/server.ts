@@ -1,6 +1,15 @@
 import { CheckService } from "../domain/use-cases/checks/check-service";
+import { FileSystemDataSource } from "../infrastructure/datasources/file-system.datasource";
+import { LogRepositoryImplementation } from "../infrastructure/repositories/log.repository.implementation";
 import { CronService } from "./cron/cron-service";
 
+//Aquí vamos a crear todas las instancias de las implementaciones
+const fileSystemLogRepository = new LogRepositoryImplementation(
+    new FileSystemDataSource()
+    //Aquí podríamos cambiar el datasource, por ej:
+    //new postgresSQLDataSource(),
+    //new MongoDataSource(),
+);
 
 export class Server {
 
@@ -17,8 +26,9 @@ export class Server {
             () => {
                 const url = 'https://google.com';
                 new CheckService(
-                    () => console.log( `${ url } is ok` ), //Parámetro 1: successCallback
-                    ( error ) => console.log(error), //Parámetro 2: errorCallback
+                    fileSystemLogRepository, //Parámetro 1: LogRepository
+                    () => console.log( `${ url } is ok` ), //Parámetro 2: successCallback
+                    ( error ) => console.log(error), //Parámetro 3: errorCallback
                 ).execute( url);
                 //new CheckService().execute('http://localhost:3000');
             }
