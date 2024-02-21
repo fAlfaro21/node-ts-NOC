@@ -9,6 +9,9 @@ El objetivo es crear una serie de tareas (un NOC) utilizando Arquitectura Limpia
 - Implementaciones
 - Variables de entorno
 - Validación de variables de entorno
+- Envío de correos electrónicos con y sin adjuntos
+- Configuración de password en Gmail (secret keys)
+- NodeMailer
 
 # dev
 1. Clonar el archivo .env.template a .env
