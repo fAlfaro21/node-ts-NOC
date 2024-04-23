@@ -1,5 +1,7 @@
 import { CronJob } from "cron";
 
+//ESTE VA A SER NUESTRO PATRON ADAPTADOR
+
 type CronTime = string | Date;
 type OnTick = () => void;
 

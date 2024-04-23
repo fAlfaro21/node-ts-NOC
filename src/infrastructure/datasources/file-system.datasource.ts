@@ -15,21 +15,26 @@ export class FileSystemDataSource implements LogDataSource {
 
     constructor(){
         //Cuando se cree una instancia de nuestro FileSystemDataSource vamos a mandar a llamar este método
+        //para crear el directorio correspondiente y los ficheros (vacíos)
         this.createLogsFiles();
     };
 
-    //Creamos los ficheros
+    //Creamos el directorio corresondiente y los ficheros (vacíos)
     private createLogsFiles = () => {
+        //Si no existe el directiorio, lo creamos
         if( !fs.existsSync( this.logPath ) ) {
             fs.mkdirSync( this.logPath );
         }
 
+        // Creo los ficheros de los logs...
         [
             this.allLogsPath,
             this.mediumLogsPath,
             this.highLogsPath,
         ].forEach( path => {
+            //Si detecta que el fichero existe, no hace nada...
             if ( fs.existsSync( path ) ) return;
+            //...de lo contrario, crea cada fichero vacío
             fs.writeFileSync( path, '' );
 
         })
@@ -40,8 +45,8 @@ export class FileSystemDataSource implements LogDataSource {
 
         const logAsJson = `${ JSON.stringify( newLog ) }\n`;
 
-        //Añadimos una línea al final del allLogsPath
-        //Y lo guardamos en un formato json
+        //Con el appendFileSync añadimos/grabamos una línea al final del allLogsPath
+        //Y guardamos el log en un formato json
         fs.appendFileSync( this.allLogsPath, logAsJson );
         
         if( newLog.level === LogSeverityLevel.low ) return;
@@ -57,6 +62,9 @@ export class FileSystemDataSource implements LogDataSource {
     private getLogsFromFile = ( path: string ): LogEntity[] => {
         
         const content = fs.readFileSync( path, 'utf-8' );
+        //Si el contenido viene vacío, devolvemos un array vacío
+        if( content === '' ) return [];
+
         const logs = content.split( '\n' ).map( 
             log => LogEntity.fromJson( log ));
         //O lo que es lo mismo:

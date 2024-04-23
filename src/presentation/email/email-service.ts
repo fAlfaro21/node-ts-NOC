@@ -4,7 +4,7 @@ import { LogRepository } from '../../domain/repository/log.repository';
 import { LogEntity, LogSeverityLevel } from '../../domain/entities/log.entity';
 
 interface SendMailOptions {
-    to: string | string[];
+    to: string | string[]; //Para enviarlo a 1 destinatario a a varios
     subject: string;
     htmlBody: string;
     attachments?: Attachment[];
@@ -17,7 +17,7 @@ interface Attachment {
 
 export class EmailService {
 
-    //Este es el objeto que termina enviando el correo electrónico	
+    //Este es el objeto que termina enviando el correo electrónico (viene en la docu)	
     private transporter = nodemailer.createTransport({
         service: envs.MAILER_SERVICE,
         auth: {
@@ -33,6 +33,7 @@ export class EmailService {
     //Hace el envío del correo
     async sendEmail( options: SendMailOptions ):Promise<boolean> {
 
+        //Si no tengo attachments envío un array vació
         const { to, subject, htmlBody, attachments = [] } = options;
 
         try {
@@ -53,12 +54,15 @@ export class EmailService {
     };
 
     //Prepara el correo con la info de los attachments: to, subject, htmlBody, attachments
-    //Puede ser que reciba 1 destinatario o varios en un array
+    //Puede ser que reciba 1 destinatario o varios en un array por eso lo del "string | string[]""
+    //Y luego, llamará a this.sendEmail para mandar el email
     async sendEmailWithFileSystemLogs( to: string | string[] ){
         const subject = 'Logs del servidor';
-        const htmlBody = `<h3>Logs de sistema - NOC</h3>
+        const htmlBody = `
+        <h3>Logs de sistema - NOC</h3>
         <p>Lorem ipsum dolor sit amet, consectetur adip
-        <p>Ver logs adjuntos</p>`;
+        <p>Ver logs adjuntos</p>
+        `;
 
         const attachments: Attachment[] = [
             { filename: 'logs-all.log', path: './logs/logs-all.log' },

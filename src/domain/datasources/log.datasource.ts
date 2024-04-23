@@ -1,6 +1,6 @@
 
 //Se le pone abstract para que nadie pueda crear instancias de mi DataSource directamente
-//Va a servir para definir el comportamiento que va a seguir este DataSource sobre otras clases
+//Va a servir para definir/obligar el comportamiento que va a seguir este DataSource sobre otras clases
 
 import { LogEntity, LogSeverityLevel } from "../entities/log.entity";
 

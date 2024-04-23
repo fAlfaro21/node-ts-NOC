@@ -1,7 +1,7 @@
 import { LogEntity, LogSeverityLevel } from "../../entities/log.entity";
 import { LogRepository } from "../../repository/log.repository";
 
-interface CheckServiceUseCase {
+interface CheckServiceMultipleUseCase {
     execute( url: string ): Promise<boolean>;
 }
 
@@ -11,15 +11,22 @@ type SuccessCallback = ( () => void | undefined ); //Esto es lo que vamos a hace
 type ErrorCallback = (( error: string) => void) | undefined; //Al poner undefined, hacemos la función opcional: puede venir o no
 
 //Este caso de uso es un verificador del servicio
-export class CheckService implements CheckServiceUseCase {
+export class CheckServiceMultiple implements CheckServiceMultipleUseCase {
 
     constructor(
         //El caso de uso trabaja con el repositorio para llegar al datasource
-        private readonly logRepository: LogRepository,
+        private readonly logRepository: LogRepository[],
         //Para la monitorización del comportamiento del caso de uso: si falla o no
         private readonly successCallback: SuccessCallback,
         private readonly errorCallback: ErrorCallback,
     ){};
+
+    //Para guardar el log en todos los repositorios existentes:
+    private callLogs( log: LogEntity ){
+        this.logRepository.forEach( logRepository => {
+            logRepository.saveLog( log );
+        } )
+    }
 
     public async execute( url: string ): Promise<boolean>{
 
@@ -37,7 +44,7 @@ export class CheckService implements CheckServiceUseCase {
                 message: `Service ${ url } working`, 
                 level: LogSeverityLevel.low, 
                 origin: 'check-service.ts', } )
-            this.logRepository.saveLog( log );
+            this.callLogs( log );
             this.successCallback && this.successCallback(); //Si el successCallback existe, lo mando llamar
             return true;
 
@@ -49,7 +56,7 @@ export class CheckService implements CheckServiceUseCase {
                 level: LogSeverityLevel.high,
                 origin: 'check-service.ts',
             } )
-            this.logRepository.saveLog( log );
+            this.callLogs( log );
             this.errorCallback && this.errorCallback( errorMessage );//Si el errorCallback existe, lo mando llamar
             return false;
         }
